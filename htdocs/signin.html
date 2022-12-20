@@ -3,8 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Sign in</title>
+    <link rel="stylesheet" href="css/signin.css">
 </head>
-<body>
+<body class="container">
+    <div class="signin-form">
+        <div class="input-style">
+            <label for="email">Email</label>
+            <input id="email" type="email">
+        </div>
 
+        <div class="input-style">
+            <label for="password">Password</label>
+            <input id="password" type="password">
+        </div>
+
+        <div class="input-style">
+            <button onclick="signIn()">Sign in</button>
+            <p>If you don't have an account, please click <a href="signup.html">here</a> to create one.</p>
+        </div>
+    </div>
+
+    <script src="js/signin.js"></script>
 </body>
 </html>
