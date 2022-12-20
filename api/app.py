@@ -2,11 +2,13 @@ import datetime
 import json
 
 from flask import Flask, request
+from flask_cors import CORS
 
-from api.account import signup, get_user_details, delete_user
+from api.account import signup, get_user_details, delete_user, signin
 from api.repository import CONNECTION_STRING
 
 app = Flask("g611")
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 @app.route("/", methods=["GET"])
@@ -22,7 +24,7 @@ def version():
         "last_call": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     }
     response = json.dumps(response)
-    return response, 200
+    return response, 200, {"Content-Type": "application/json"}
 
 
 @app.route("/api/v1/register", methods=["POST"])
@@ -30,19 +32,33 @@ def register():
     try:
         body = request.json
         signup(body, CONNECTION_STRING)
-        return "", 204
+        return "{}", 200, {"Content-Type": "application/json"}
     except ValueError as ve:
         error_message = {
             "error": f"Invalid request parameters."
         }
         response = json.dumps(error_message)
-        return response, 400
+        return response, 400, {"Content-Type": "application/json"}
     except Exception as e:
         error_message = {
             "error": f"Something went wrong. Cause {e}."
         }
         response = json.dumps(error_message)
-        return response, 500
+        return response, 500, {"Content-Type": "application/json"}
+
+
+@app.route("/api/v1/authenticate", methods=["POST"])
+def authenticate():
+    try:
+        body = request.json
+        user = signin(body, CONNECTION_STRING)
+        return user.to_json(), 200, {"Content-Type": "application/json"}
+    except Exception as e:
+        error_message = {
+            "error": f"Something went wrong. Cause {e}."
+        }
+        response = json.dumps(error_message)
+        return response, 500, {"Content-Type": "application/json"}
 
 
 @app.route("/api/v1/accounts/<user_id>", methods=["GET", "PUT", "DELETE"])
@@ -51,13 +67,13 @@ def accounts(user_id):
         try:
             user = get_user_details(user_id, CONNECTION_STRING)
             response = user.to_json()
-            return response, 200
+            return response, 200, {"Content-Type": "application/json"}
         except Exception as e:
             error_message = {
                 "error": f"Failed to get user details. Cause {e}."
             }
             response = json.dumps(error_message)
-            return response, 500
+            return response, 500, {"Content-Type": "application/json"}
 
     if request.method == "PUT":
         pass
@@ -65,13 +81,13 @@ def accounts(user_id):
     if request.method == "DELETE":
         try:
             delete_user(user_id, CONNECTION_STRING)
-            return "", 204
+            return "{}", 200, {"Content-Type": "application/json"}
         except Exception as e:
             error_message = {
                 "error": f"Failed to delete user. Cause {e}."
             }
             response = json.dumps(error_message)
-            return response, 500
+            return response, 500, {"Content-Type": "application/json"}
 
 
 app.run(port=5611, debug=True)

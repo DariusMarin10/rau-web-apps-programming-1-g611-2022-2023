@@ -1,6 +1,6 @@
 import datetime
 
-from api.repository import insert_user, get_user_by_id, delete_user_by_id
+from api.repository import insert_user, get_user_by_id, delete_user_by_id, get_user_by_email
 from api.users import User
 
 
@@ -18,7 +18,20 @@ def signup(request_body, connection_string):
 
 
 def signin(request_body, connection_string):
-    pass
+    email = request_body.get("email")
+    password = request_body.get("password")
+
+    user = User(email=email, password=password)
+
+    user.email = user.validate_email()
+    user.password = user.validate_password()
+
+    existing_user = get_user_by_email(user, connection_string)
+
+    if user.password != existing_user.password:
+        raise ValueError("Password mismatch.")
+
+    return existing_user
 
 
 def update_user(request_body, connection_string):
