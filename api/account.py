@@ -1,6 +1,6 @@
 import datetime
 
-from api.repository import insert_user, get_user_by_id, delete_user_by_id, get_user_by_email
+from api.repository import insert_user, get_user_by_id, delete_user_by_id, get_user_by_email, update_user
 from api.users import User
 
 
@@ -34,9 +34,10 @@ def signin(request_body, connection_string):
     return existing_user
 
 
-def update_user(request_body, connection_string):
-    pass
-
+def edit_user_details(request_body, connection_string):
+    user = User.from_dict(request_body)
+    result = update_user(user, connection_string)
+    return result
 
 def delete_user(user_id, connection_string):
     delete_user_by_id(user_id, connection_string)

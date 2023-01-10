@@ -123,3 +123,6 @@ def delete_user_by_id(user_id, connection_string):
         cursor.close()
         conn.close()
         raise e
+
+def update_user(user, connection_string):
+    return {"id": user.id}
